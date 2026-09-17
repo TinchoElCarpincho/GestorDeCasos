@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<link rel="stylesheet" href="/style.css">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard | Gestor de Casos</title>
+</head>
+<body class="dashboard">
+    {{> header}}
+    
+    <main class="dashboard__content">
+        <div class="dashboard__main-col">
+            <section class="dashboard__controls-card">
+                <div class="dashboard__controls-top">
+                    <input type="text" class="search-bar" placeholder="Buscar casos...">
+                    <select class="sort-select">
+                        <option value="recientes">Más recientes</option>
+                        <option value="antiguos">Más antiguos</option>
+                        <option value="titulo">Por título</option>
+                    </select>
+                </div>
+                <div class="dashboard__controls-bottom">
+                    <div class="case-filters">
+                        <button type="button" class="filter-btn">Todos</button>
+                        <button type="button" class="filter-btn">Público</button>
+                        <button type="button" class="filter-btn">Privado</button>
+                        <button type="button" class="filter-btn">Judicial</button>
+                    </div>
+                    <button type="button" class="btn-create" id="btnOpenModal">+ Crear Caso</button>
+                </div>
+            </section>
+
+            <h2 class="section-title">Catálogo de Casos Legales</h2>
+
+            <div class="case-grid">
+                <!-- Mustache itera sobre la lista 'casos' -->
+                {{#casos}}
+                    <article class="case-card">
+                        <div class="case-card__header-info">
+                            <span class="case-card__badge">{{tipo}}</span>
+                            <span class="case-card__status">{{estado}}</span>
+                        </div>
+                        <h2 class="case-card__title">{{titulo}}</h2>
+                        <p class="case-card__desc">{{descripcion}}</p>
+                        <div class="case-card__footer">
+                            {{#fecha_vencimiento}}
+                                <span class="case-card__meta">📅 Vence: {{fecha_vencimiento}}</span>
+                            {{/fecha_vencimiento}}
+                            {{#tiene_audiencia}}
+                                <span class="case-card__meta case-card__meta--hearing">⚖️ Audiencia programada</span>
+                            {{/tiene_audiencia}}
+                        </div>
+                    </article>
+                {{/casos}}
+                
+                <!-- Si la lista está vacía, muestra esto -->
+                {{^casos}}
+                    <p class="dashboard__empty-state">No hay casos registrados aún en la base de datos.</p>
+                {{/casos}}
+            </div>
+        </div>
+
+        <aside class="dashboard__side-col">
+            <section class="daily-tasks">
+                <h2>Tareas Diarias</h2>
+                <div class="daily-tasks__list">
+                    {{#tareas_hoy}}
+                        <div class="daily-tasks__item">
+                            <strong>{{titulo}}</strong>
+                            <small>{{tipo}}</small>
+                        </div>
+                    {{/tareas_hoy}}
+                    {{^tareas_hoy}}
+                        <p class="daily-tasks__empty">No hay vencimientos o audiencias urgentes para hoy.</p>
+                    {{/tareas_hoy}}
+                </div>
+                <a href="/calendario" class="btn-task">Ver en Calendario</a>
+            </section>
+        </aside>
+    </main>
+
+    <!-- Modal Formulario Crear Caso -->
+    <div class="modal" id="caseModal">
+        <div class="modal__overlay" id="modalOverlay"></div>
+        <div class="modal__card">
+            <div class="modal__header">
+                <h3 class="modal__title">Registrar Nuevo Caso</h3>
+                <button type="button" class="modal__close" id="btnCloseModal">&times;</button>
+            </div>
+            <form action="/crear" method="POST" class="modal__form">
+                <div class="form-group">
+                    <label for="titulo" class="form-label">Título del Caso *</label>
+                    <input type="text" id="titulo" name="titulo" class="form-input" placeholder="Ej: Daños y Perjuicios - García c/ López" required>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="tipo" class="form-label">Tipo de Caso</label>
+                        <select id="tipo" name="tipo" class="form-select">
+                            <option value="Judicial">Judicial</option>
+                            <option value="Público">Público</option>
+                            <option value="Privado">Privado</option>
+                            <option value="Administrativo">Administrativo</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="fecha_inicio" class="form-label">Fecha de Inicio</label>
+                        <input type="date" id="fecha_inicio" name="fecha_inicio" class="form-input">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="descripcion" class="form-label">Descripción Breve</label>
+                    <textarea id="descripcion" name="descripcion" class="form-textarea" rows="3" placeholder="Síntesis o notas del caso..."></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label for="fecha_vencimiento" class="form-label">Fecha de Vencimiento / Plazo</label>
+                    <input type="date" id="fecha_vencimiento" name="fecha_vencimiento" class="form-input">
+                </div>
+
+                <div class="form-group form-group--checkbox">
+                    <label class="form-checkbox-label">
+                        <input type="checkbox" id="tiene_audiencia" name="tiene_audiencia" value="true" class="form-checkbox">
+                        <span>¿Tiene audiencia programada?</span>
+                    </label>
+                </div>
+
+                <div class="form-group" id="audienciaDateGroup" style="display: none;">
+                    <label for="fecha_audiencia" class="form-label">Fecha y Hora de Audiencia</label>
+                    <input type="datetime-local" id="fecha_audiencia" name="fecha_audiencia" class="form-input">
+                </div>
+
+                <div class="modal__actions">
+                    <button type="button" class="btn-cancel" id="btnCancelModal">Cancelar</button>
+                    <button type="submit" class="btn-submit">Guardar Caso</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        const btnOpen = document.getElementById('btnOpenModal');
+        const modal = document.getElementById('caseModal');
+        const btnClose = document.getElementById('btnCloseModal');
+        const btnCancel = document.getElementById('btnCancelModal');
+        const overlay = document.getElementById('modalOverlay');
+        const chkAudiencia = document.getElementById('tiene_audiencia');
+        const audienciaGroup = document.getElementById('audienciaDateGroup');
+
+        function openModal() {
+            modal.classList.add('modal--active');
+            const today = new Date().toISOString().split('T')[0];
+            const dateInput = document.getElementById('fecha_inicio');
+            if (dateInput && !dateInput.value) dateInput.value = today;
+        }
+
+        function closeModal() {
+            modal.classList.remove('modal--active');
+        }
+
+        if (btnOpen) btnOpen.addEventListener('click', openModal);
+        if (btnClose) btnClose.addEventListener('click', closeModal);
+        if (btnCancel) btnCancel.addEventListener('click', closeModal);
+        if (overlay) overlay.addEventListener('click', closeModal);
+
+        if (chkAudiencia) {
+            chkAudiencia.addEventListener('change', function() {
+                audienciaGroup.style.display = this.checked ? 'block' : 'none';
+                if (!this.checked) {
+                    const inputAud = document.getElementById('fecha_audiencia');
+                    if (inputAud) inputAud.value = '';
+                }
+            });
+        }
+    </script>
+
+    {{> footer}}
+</body>
+</html>
