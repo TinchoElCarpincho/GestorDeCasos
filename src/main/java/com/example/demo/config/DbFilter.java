@@ -1,13 +1,18 @@
 package com.example.demo.config;
 
 import org.javalite.activejdbc.Base;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import jakarta.servlet.*;
+import javax.sql.DataSource;
 import java.io.IOException;
 
 @Component
 public class DbFilter implements Filter {
+
+    @Autowired(required = false)
+    private DataSource dataSource;
 
     @Value("${spring.datasource.url}")
     private String url;
@@ -21,7 +26,11 @@ public class DbFilter implements Filter {
     @Override
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
         try {
-            Base.open(driver, url, user, password);
+            if (dataSource != null) {
+                Base.open(dataSource);
+            } else {
+                Base.open(driver, url, user, password);
+            }
             chain.doFilter(request, response);
         } finally {
             Base.close();

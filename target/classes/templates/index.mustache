@@ -1,85 +1,377 @@
 <!DOCTYPE html>
 <html lang="es">
 
-<link rel="stylesheet" href="/style.css">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard | Gestor de Casos</title>
+    <title>Gestor de casos</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text x=%2250%%22 y=%2255%%22 font-size=%2275%22 text-anchor=%22middle%22 dominant-baseline=%22middle%22>⚖️</text></svg>">
+    <link rel="stylesheet" href="/style.css">
 </head>
 <body class="dashboard">
     {{> header}}
     
     <main class="dashboard__content">
-        <div class="dashboard__main-col">
-            <section class="dashboard__controls-card">
-                <div class="dashboard__controls-top">
-                    <input type="text" class="search-bar" placeholder="Buscar casos...">
-                    <select class="sort-select">
-                        <option value="recientes">Más recientes</option>
-                        <option value="antiguos">Más antiguos</option>
-                        <option value="titulo">Por título</option>
-                    </select>
-                </div>
-                <div class="dashboard__controls-bottom">
-                    <div class="case-filters">
-                        <button type="button" class="filter-btn">Todos</button>
-                        <button type="button" class="filter-btn">Público</button>
-                        <button type="button" class="filter-btn">Privado</button>
-                        <button type="button" class="filter-btn">Judicial</button>
+        <!-- Sección superior para los KPIs -->
+        <section class="dashboard__kpis">
+        </section>
+
+        <!-- Contenedor de dos columnas -->
+        <div class="dashboard__layout">
+            <div class="dashboard__main-col">
+                <section class="dashboard__controls-card">
+                    <!-- Cabecera de controles: Título, contador y botón Crear Caso -->
+                    <div class="controls-card__header">
+                        <div class="controls-card__header-left">
+                            <div class="controls-card__title-wrap">
+                                <h2 class="controls-card__title">Catálogo de Casos</h2>
+                                <span class="controls-card__counter" id="casesCounterBadge">Cargando casos...</span>
+                            </div>
+                        </div>
+                        <div class="controls-card__header-right">
+                            <button type="button" class="btn-create" id="btnOpenModal">
+                                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                                    <line x1="12" y1="5" x2="12" y2="19"></line>
+                                    <line x1="5" y1="12" x2="19" y2="12"></line>
+                                </svg>
+                                <span>Nuevo Caso</span>
+                            </button>
+                        </div>
                     </div>
-                    <button type="button" class="btn-create" id="btnOpenModal">+ Crear Caso</button>
-                </div>
-            </section>
 
-            <h2 class="section-title">Catálogo de Casos Legales</h2>
+                    <!-- Fila 1: Búsqueda y Ordenamiento con proporciones equilibradas -->
+                    <div class="controls-card__search-row">
+                        <div class="controls-card__search-wrap">
+                            <svg class="controls-card__search-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <circle cx="11" cy="11" r="8"></circle>
+                                <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                            </svg>
+                            <input type="text" class="controls-card__search-input controls__search-input search-bar" placeholder="Buscar por título, expediente, juzgado, fuero, cliente o descripción..." autocomplete="off">
+                            <button type="button" class="controls-card__clear-search" id="btnClearSearch" title="Limpiar búsqueda" style="display: none;">&times;</button>
+                        </div>
 
-            <div class="case-grid">
+                        <div class="controls-card__sort-wrap">
+                            <svg class="controls-card__sort-icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <line x1="4" y1="6" x2="16" y2="6"></line>
+                                <line x1="4" y1="12" x2="12" y2="12"></line>
+                                <line x1="4" y1="18" x2="8" y2="18"></line>
+                                <polyline points="15 15 18 18 21 15"></polyline>
+                                <line x1="18" y1="9" x2="18" y2="18"></line>
+                            </svg>
+                            <select class="controls-card__sort-select controls__sort-select sort-select">
+                                <option value="vencimiento_urgente">Próximo vencimiento</option>
+                                <option value="vencimiento_lejano">Vencimiento más lejano</option>
+                                <option value="titulo_asc">Carátula (A - Z)</option>
+                                <option value="alta_reciente">Más recientes</option>
+                                <option value="alta_antigua">Más antiguos</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- Fila 2: Filtro principal por Estado en pestañas armónicas -->
+                    <div class="controls-card__state-bar">
+                        <div class="filter-group filter-group--states" data-filter-type="estado">
+                            <span class="filter-group__label">ESTADO:</span>
+                            <div class="filter-group__buttons">
+                                <button type="button" class="filter-btn filter-btn--active" data-val="todos">Todos</button>
+                                <button type="button" class="filter-btn" data-val="en trámite">En trámite</button>
+                                <button type="button" class="filter-btn" data-val="iniciado">Iniciado</button>
+                                <button type="button" class="filter-btn" data-val="en mediación">Mediación</button>
+                                <button type="button" class="filter-btn" data-val="prueba">Prueba</button>
+                                <button type="button" class="filter-btn" data-val="finalizado">Finalizado / Cerrado</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Fila 3: Filtros secundarios modulares (Fuero, Vencimiento, Honorarios, Audiencia) y Reset -->
+                    <div class="controls-card__secondary-bar">
+                        <!-- Filtro Fuero / Tipo -->
+                        <div class="filter-group" data-filter-type="tipo">
+                            <span class="filter-group__label">FUERO:</span>
+                            <select class="controls-card__filter-select filter-select" id="filterSelectTipo">
+                                <option value="todos">Todos los fueros</option>
+                                <option value="civil">Civil y Comercial</option>
+                                <option value="laboral">Laboral</option>
+                                <option value="penal">Penal</option>
+                                <option value="familia">Familia</option>
+                                <option value="extrajudicial">Extrajudicial</option>
+                                <option value="administrativo">Administrativo</option>
+                                <option value="previsional">Previsional</option>
+                            </select>
+                        </div>
+
+                        <!-- Filtro Vencimiento -->
+                        <div class="filter-group" data-filter-type="vencimiento">
+                            <span class="filter-group__label">PLAZO:</span>
+                            <div class="filter-group__buttons">
+                                <button type="button" class="filter-btn filter-btn--active" data-val="todos">Todos</button>
+                                <button type="button" class="filter-btn" data-val="hoy">Hoy</button>
+                                <button type="button" class="filter-btn" data-val="7dias">7 días</button>
+                                <button type="button" class="filter-btn" data-val="mes">Este mes</button>
+                            </div>
+                        </div>
+
+                        <!-- Filtro Honorarios -->
+                        <div class="filter-group" data-filter-type="pago">
+                            <span class="filter-group__label">PAGO:</span>
+                            <div class="filter-group__buttons">
+                                <button type="button" class="filter-btn filter-btn--active" data-val="todos">Todos</button>
+                                <button type="button" class="filter-btn" data-val="pagado">Pagado</button>
+                                <button type="button" class="filter-btn" data-val="pendiente">Pendiente</button>
+                            </div>
+                        </div>
+
+                        <!-- Filtro Audiencia -->
+                        <div class="filter-group" data-filter-type="audiencia">
+                            <span class="filter-group__label">AUDIENCIA:</span>
+                            <div class="filter-group__buttons">
+                                <button type="button" class="filter-btn filter-btn--active" data-val="todos">Todos</button>
+                                <button type="button" class="filter-btn" data-val="con">Con</button>
+                                <button type="button" class="filter-btn" data-val="sin">Sin</button>
+                            </div>
+                        </div>
+
+                        <!-- Botón Restablecer Filtros -->
+                        <div class="controls-card__reset-wrap">
+                            <button type="button" class="btn-reset-filters" id="btnResetAllFilters" title="Restablecer todos los filtros y búsqueda">
+                                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"></path>
+                                    <path d="M3 3v5h5"></path>
+                                </svg>
+                                <span>Limpiar</span>
+                            </button>
+                        </div>
+                    </div>
+                </section>
+
+                <section class="dashboard__cases-section">
+
+                    <div class="cases-grid">
                 <!-- Mustache itera sobre la lista 'casos' -->
                 {{#casos}}
-                    <article class="case-card">
-                        <div class="case-card__header-info">
-                            <span class="case-card__badge">{{tipo}}</span>
-                            <span class="case-card__status">{{estado}}</span>
-                        </div>
-                        <h2 class="case-card__title">{{titulo}}</h2>
-                        <p class="case-card__desc">{{descripcion}}</p>
-                        <div class="case-card__footer">
-                            {{#fecha_vencimiento}}
-                                <span class="case-card__meta">📅 Vence: {{fecha_vencimiento}}</span>
-                            {{/fecha_vencimiento}}
+                    <article class="case-card case-card--{{tipo_slug}}"
+                             data-id="{{id}}"
+                             data-expediente="{{expediente}}"
+                             data-titulo="{{titulo}}"
+                             data-desc="{{descripcion}}"
+                             data-estado="{{estado}}"
+                             data-tipo="{{tipo}}"
+                             data-pago="{{estado_pago_slug}}"
+                             data-honorarios="{{honorarios}}"
+                             data-tiene-audiencia="{{tiene_audiencia}}"
+                             data-audiencia="{{fecha_audiencia}}"
+                             data-requiere-docs="{{requiere_docs}}"
+                             data-docs="{{fecha_docs}}"
+                             data-vencimiento="{{fecha_vencimiento}}"
+                             data-alta="{{fecha_inicio}}"
+                             data-created="{{created_at}}">
+                        <!-- Header: Solamente Tipo y Estado -->
+                        <header class="case-card__header">
+                            <span class="case-card__type-badge">{{tipo}}</span>
+                            <span class="case-card__status-badge case-card__status-badge--{{estado_slug}}">
+                                <span class="case-card__status-dot"></span>
+                                {{estado}}
+                            </span>
+                        </header>
+
+                        <!-- Body: Título, Vencimiento, Audiencia, Documentación, Honorarios -->
+                        <div class="case-card__body">
+                            <!-- 1. Título -->
+                            <h3 class="case-card__title" title="{{titulo}}">{{titulo}}</h3>
+
+                            <!-- 2. Fecha de Vencimiento -->
+                            <div class="case-card__row">
+                                <span class="case-card__label">Vencimiento:</span>
+                                {{#fecha_vencimiento_formateada}}
+                                    <span class="pill pill--vencimiento" title="{{fecha_vencimiento_formateada}}">
+                                        <svg class="pill__icon" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                            <circle cx="12" cy="12" r="10"></circle>
+                                            <polyline points="12 6 12 12 16 14"></polyline>
+                                        </svg>
+                                        {{fecha_vencimiento_formateada}}
+                                    </span>
+                                {{/fecha_vencimiento_formateada}}
+                                {{^fecha_vencimiento_formateada}}
+                                    <span class="case-card__empty-text">Sin vencimiento</span>
+                                {{/fecha_vencimiento_formateada}}
+                            </div>
+
+                            <!-- 3. Fecha de Audiencia si tiene -->
                             {{#tiene_audiencia}}
-                                <span class="case-card__meta case-card__meta--hearing">⚖️ Audiencia programada</span>
+                            <div class="case-card__row">
+                                <span class="case-card__label">Audiencia:</span>
+                                <span class="pill pill--audiencia" title="{{fecha_audiencia_formateada}}">
+                                    <svg class="pill__icon" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                        <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                                        <line x1="16" y1="2" x2="16" y2="6"></line>
+                                        <line x1="8" y1="2" x2="8" y2="6"></line>
+                                        <line x1="3" y1="10" x2="21" y2="10"></line>
+                                    </svg>
+                                    <span class="case-card__truncate-text">{{fecha_audiencia_formateada}}</span>
+                                </span>
+                            </div>
                             {{/tiene_audiencia}}
+
+                            <!-- 4. Presentación de Documentación si requiere -->
+                            {{#requiere_docs}}
+                            <div class="case-card__row">
+                                <span class="case-card__label">Documentación:</span>
+                                <span class="pill pill--docs" title="{{fecha_docs_formateada}}">
+                                    <svg class="pill__icon" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                                        <polyline points="14 2 14 8 20 8"></polyline>
+                                        <line x1="16" y1="13" x2="8" y2="13"></line>
+                                        <line x1="16" y1="17" x2="8" y2="17"></line>
+                                    </svg>
+                                    <span class="case-card__truncate-text">{{fecha_docs_formateada}}</span>
+                                </span>
+                            </div>
+                            {{/requiere_docs}}
+
+                            <!-- 5. Honorarios y Estado de Pago -->
+                            <div class="case-card__row">
+                                <span class="case-card__label">Honorarios:</span>
+                                <div class="case-card__fees-group">
+                                    <span class="case-card__fees-amount">{{honorarios}}</span>
+                                    <span class="pill pill--pago-{{estado_pago_slug}}">{{estado_pago}}</span>
+                                </div>
+                            </div>
                         </div>
+
+                        <!-- Footer: Fecha de Alta -->
+                        <footer class="case-card__footer">
+                            <span class="case-card__alta">Alta: {{#fecha_inicio_formateada}}{{fecha_inicio_formateada}}{{/fecha_inicio_formateada}}{{^fecha_inicio_formateada}}-{{/fecha_inicio_formateada}}</span>
+                            <a href="#" class="case-card__link">
+                                <span>Ver expediente</span>
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <line x1="5" y1="12" x2="19" y2="12"/>
+                                    <polyline points="12 5 19 12 12 19"/>
+                                </svg>
+                            </a>
+                        </footer>
                     </article>
                 {{/casos}}
+                
+                <p class="dashboard__empty-state" id="noFilterResults" style="display: none;">
+                    No se encontraron casos que coincidan con la búsqueda o filtros seleccionados.
+                </p>
                 
                 <!-- Si la lista está vacía, muestra esto -->
                 {{^casos}}
                     <p class="dashboard__empty-state">No hay casos registrados aún en la base de datos.</p>
                 {{/casos}}
+                    </div>
+                </section>
             </div>
-        </div>
 
-        <aside class="dashboard__side-col">
-            <section class="daily-tasks">
-                <h2>Tareas Diarias</h2>
-                <div class="daily-tasks__list">
-                    {{#tareas_hoy}}
-                        <div class="daily-tasks__item">
-                            <strong>{{titulo}}</strong>
-                            <small>{{tipo}}</small>
+            <aside class="dashboard__side-col">
+                <section class="daily-tasks">
+                    <!-- Cabecera con Logo / Ícono elegante y Fecha -->
+                    <div class="daily-tasks__top-bar">
+                        <div class="daily-tasks__logo-container">
+                            <div class="daily-tasks__logo-badge">
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path>
+                                    <rect x="8" y="2" width="8" height="4" rx="1" ry="1"></rect>
+                                    <path d="m9 14 2 2 4-4"></path>
+                                </svg>
+                            </div>
+                            <div>
+                                <h2 class="daily-tasks__main-title">Casos del día y tareas</h2>
+                                <span class="daily-tasks__date-sub">{{#fecha_hoy_legible}}{{fecha_hoy_legible}}{{/fecha_hoy_legible}}{{^fecha_hoy_legible}}Hoy{{/fecha_hoy_legible}}</span>
+                            </div>
                         </div>
-                    {{/tareas_hoy}}
-                    {{^tareas_hoy}}
-                        <p class="daily-tasks__empty">No hay vencimientos o audiencias urgentes para hoy.</p>
-                    {{/tareas_hoy}}
-                </div>
-                <a href="/calendario" class="btn-task">Ver en Calendario</a>
-            </section>
-        </aside>
+                    </div>
+
+                    <!-- Sección 1: Casos que tienen plazos o fechas ese día -->
+                    <div class="daily-tasks__section">
+                        <div class="daily-tasks__section-header">
+                            <h3 class="daily-tasks__subtitle">
+                                <span class="daily-tasks__sub-icon daily-tasks__sub-icon--calendar">
+                                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                                        <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                                        <line x1="16" y1="2" x2="16" y2="6"></line>
+                                        <line x1="8" y1="2" x2="8" y2="6"></line>
+                                        <line x1="3" y1="10" x2="21" y2="10"></line>
+                                    </svg>
+                                </span>
+                                Casos con plazos hoy
+                            </h3>
+                            <span class="daily-tasks__counter">{{total_casos_hoy}}</span>
+                        </div>
+                        <div class="daily-tasks__list">
+                            {{#casos_hoy}}
+                                <div class="daily-tasks__item daily-tasks__item--{{tipo_slug}}">
+                                    <div class="daily-tasks__item-main">
+                                        <strong class="daily-tasks__case-title" title="{{titulo}}">{{titulo}}</strong>
+                                    </div>
+                                    <span class="daily-tasks__badge daily-tasks__badge--{{tipo_slug}}">{{badge}}</span>
+                                </div>
+                            {{/casos_hoy}}
+                            {{^casos_hoy}}
+                                <p class="daily-tasks__empty">No hay plazos ni fechas programadas para hoy.</p>
+                            {{/casos_hoy}}
+                        </div>
+                    </div>
+
+                    <!-- Sección 2: Checklist de tareas unificada (Casos + Tareas) -->
+                    <div class="daily-tasks__section">
+                        <div class="daily-tasks__section-header">
+                            <h3 class="daily-tasks__subtitle">
+                                <span class="daily-tasks__sub-icon daily-tasks__sub-icon--tasks">
+                                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                                        <polyline points="9 11 12 14 22 4"></polyline>
+                                        <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"></path>
+                                    </svg>
+                                </span>
+                                Checklist de Tareas
+                            </h3>
+                            <button type="button" class="btn-add-task" id="btnToggleAddTask" title="Agregar nueva tarea personal">
+                                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                                    <line x1="12" y1="5" x2="12" y2="19"></line>
+                                    <line x1="5" y1="12" x2="19" y2="12"></line>
+                                </svg>
+                                <span>Nueva</span>
+                            </button>
+                        </div>
+
+                        <!-- Barra de progreso visual -->
+                        <div class="daily-tasks__progress-box">
+                            <div class="daily-tasks__progress-labels">
+                                <span class="daily-tasks__progress-title">Progreso del día</span>
+                                <span class="daily-tasks__progress-status" id="tasksProgressText">0 de 0 completadas</span>
+                            </div>
+                            <div class="daily-tasks__progress-track">
+                                <div class="daily-tasks__progress-fill" id="tasksProgressFill" style="width: 0%;"></div>
+                            </div>
+                        </div>
+
+                        <!-- Formulario inline para agregar tarea -->
+                        <form id="formAddTask" class="daily-tasks__add-form" style="display: none;">
+                            <input type="text" id="inputNewTask" class="daily-tasks__input" placeholder="Nueva tarea pendiente..." maxlength="120" autocomplete="off">
+                            <div class="daily-tasks__form-actions">
+                                <button type="submit" class="btn-task-save">Guardar</button>
+                                <button type="button" class="btn-task-cancel" id="btnCancelAddTask">&times;</button>
+                            </div>
+                        </form>
+
+                        <!-- Datos ocultos de casos de hoy para la checklist -->
+                        <div id="serverCasesData" style="display: none;">
+                            {{#casos_hoy}}
+                                <span data-id="{{id}}" data-titulo="{{titulo}}" data-tipo="{{tipo}}" data-tipo-slug="{{tipo_slug}}" data-badge="{{badge}}" data-tarea="{{tarea_texto}}"></span>
+                            {{/casos_hoy}}
+                        </div>
+
+                        <!-- Lista Checklist interactiva -->
+                        <ul class="task-checklist" id="userTasksList">
+                            <!-- Se renderiza vía JavaScript con casos y tareas -->
+                        </ul>
+                    </div>
+
+                    <a href="/calendario" class="btn-task">Ver en Calendario</a>
+                </section>
+            </aside>
+        </div>
     </main>
 
     <!-- Modal Formulario Crear Caso -->
@@ -92,46 +384,97 @@
             </div>
             <form action="/crear" method="POST" class="modal__form">
                 <div class="form-group">
-                    <label for="titulo" class="form-label">Título del Caso *</label>
+                    <label for="titulo" class="form-label">Título / Carátula del Caso *</label>
                     <input type="text" id="titulo" name="titulo" class="form-input" placeholder="Ej: Daños y Perjuicios - García c/ López" required>
                 </div>
 
                 <div class="form-row">
                     <div class="form-group">
-                        <label for="tipo" class="form-label">Tipo de Caso</label>
+                        <label for="expediente" class="form-label">Nº de Expediente</label>
+                        <input type="text" id="expediente" name="expediente" class="form-input" placeholder="Ej: EXP 12345/2026">
+                    </div>
+                    <div class="form-group">
+                        <label for="tipo" class="form-label">Tipo / Fuero</label>
                         <select id="tipo" name="tipo" class="form-select">
-                            <option value="Judicial">Judicial</option>
-                            <option value="Público">Público</option>
-                            <option value="Privado">Privado</option>
-                            <option value="Administrativo">Administrativo</option>
+                            <option value="Laboral">Laboral</option>
+                            <option value="Civil y Comercial">Civil y Comercial</option>
+                            <option value="Penal">Penal</option>
+                            <option value="Familia">Familia</option>
+                            <option value="Extrajudicial">Extrajudicial</option>
+                            <option value="Judicial" selected>Judicial</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="honorarios" class="form-label">Honorarios Pactados</label>
+                        <input type="text" id="honorarios" name="honorarios" class="form-input" placeholder="Ej: $250.000">
+                    </div>
+                    <div class="form-group">
+                        <label for="honorarios_pagados" class="form-label">¿Honorarios pagados?</label>
+                        <select id="honorarios_pagados" name="honorarios_pagados" class="form-select">
+                            <option value="false">⏳ Pendiente de pago</option>
+                            <option value="true">✓ Pagado</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="estado" class="form-label">Estado del Caso</label>
+                        <select id="estado" name="estado" class="form-select">
+                            <option value="En trámite" selected>En trámite</option>
+                            <option value="Iniciado">Iniciado</option>
+                            <option value="En mediación">En mediación</option>
+                            <option value="Cerrado">Cerrado</option>
                         </select>
                     </div>
                     <div class="form-group">
-                        <label for="fecha_inicio" class="form-label">Fecha de Inicio</label>
-                        <input type="date" id="fecha_inicio" name="fecha_inicio" class="form-input">
+                        <label for="fecha_inicio" class="form-label">Fecha de Alta *</label>
+                        <input type="date" id="fecha_inicio" name="fecha_inicio" class="form-input" required>
                     </div>
                 </div>
 
-                <div class="form-group">
-                    <label for="descripcion" class="form-label">Descripción Breve</label>
-                    <textarea id="descripcion" name="descripcion" class="form-textarea" rows="3" placeholder="Síntesis o notas del caso..."></textarea>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="fecha_vencimiento" class="form-label">Fecha de Vencimiento</label>
+                        <input type="date" id="fecha_vencimiento" name="fecha_vencimiento" class="form-input">
+                    </div>
+                    <div class="form-group form-group--checkbox" style="align-self: center; margin-top: 1.2rem;">
+                        <label class="form-checkbox-label">
+                            <input type="checkbox" id="tiene_audiencia" name="tiene_audiencia" value="true" class="form-checkbox">
+                            <span>¿Tiene audiencia programada?</span>
+                        </label>
+                    </div>
                 </div>
 
-                <div class="form-group">
-                    <label for="fecha_vencimiento" class="form-label">Fecha de Vencimiento / Plazo</label>
-                    <input type="date" id="fecha_vencimiento" name="fecha_vencimiento" class="form-input">
+                <div class="form-group" id="audienciaDateGroup" style="display: none;">
+                    <label for="fecha_audiencia" class="form-label">Fecha y Hora de la Audiencia</label>
+                    <input type="datetime-local" id="fecha_audiencia" name="fecha_audiencia" class="form-input">
                 </div>
 
                 <div class="form-group form-group--checkbox">
                     <label class="form-checkbox-label">
-                        <input type="checkbox" id="tiene_audiencia" name="tiene_audiencia" value="true" class="form-checkbox">
-                        <span>¿Tiene audiencia programada?</span>
+                        <input type="checkbox" id="requiere_docs" name="requiere_docs" value="true" class="form-checkbox">
+                        <span>¿Requiere presentación de documentación?</span>
                     </label>
                 </div>
 
-                <div class="form-group" id="audienciaDateGroup" style="display: none;">
-                    <label for="fecha_audiencia" class="form-label">Fecha y Hora de Audiencia</label>
-                    <input type="datetime-local" id="fecha_audiencia" name="fecha_audiencia" class="form-input">
+                <div class="form-row" id="docsDateGroup" style="display: none;">
+                    <div class="form-group">
+                        <label for="fecha_docs" class="form-label">Fecha Límite de Documentación</label>
+                        <input type="date" id="fecha_docs" name="fecha_docs" class="form-input">
+                    </div>
+                    <div class="form-group">
+                        <label for="hora_docs" class="form-label">Hora Límite (opcional)</label>
+                        <input type="time" id="hora_docs" name="hora_docs" class="form-input">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="descripcion" class="form-label">Descripción / Notas</label>
+                    <textarea id="descripcion" name="descripcion" class="form-textarea" rows="2" placeholder="Síntesis o notas del caso..."></textarea>
                 </div>
 
                 <div class="modal__actions">
@@ -143,6 +486,7 @@
     </div>
 
     <script>
+        // Modal logic
         const btnOpen = document.getElementById('btnOpenModal');
         const modal = document.getElementById('caseModal');
         const btnClose = document.getElementById('btnCloseModal');
@@ -150,6 +494,8 @@
         const overlay = document.getElementById('modalOverlay');
         const chkAudiencia = document.getElementById('tiene_audiencia');
         const audienciaGroup = document.getElementById('audienciaDateGroup');
+        const chkDocs = document.getElementById('requiere_docs');
+        const docsGroup = document.getElementById('docsDateGroup');
 
         function openModal() {
             modal.classList.add('modal--active');
@@ -176,6 +522,445 @@
                 }
             });
         }
+
+        if (chkDocs && docsGroup) {
+            chkDocs.addEventListener('change', function() {
+                docsGroup.style.display = this.checked ? 'grid' : 'none';
+                if (!this.checked) {
+                    const fDocs = document.getElementById('fecha_docs');
+                    const hDocs = document.getElementById('hora_docs');
+                    if (fDocs) fDocs.value = '';
+                    if (hDocs) hDocs.value = '';
+                }
+            });
+        }
+
+        // Search, Sort & Filters functionality
+        const searchInput = document.querySelector('.controls__search-input');
+        const sortSelect = document.querySelector('.controls__sort-select');
+        const caseGrid = document.querySelector('.cases-grid, .case-grid');
+        const noResultsMsg = document.getElementById('noFilterResults');
+        const btnClearSearch = document.getElementById('btnClearSearch');
+        const filterSelectTipo = document.getElementById('filterSelectTipo');
+        const btnResetAllFilters = document.getElementById('btnResetAllFilters');
+        const counterBadge = document.getElementById('casesCounterBadge');
+
+        let currentEstado = 'todos';
+        let currentPago = 'todos';
+        let currentAudiencia = 'todos';
+        let currentVencimiento = 'todos';
+        let currentTipo = 'todos';
+
+        document.querySelectorAll('.filter-group').forEach(group => {
+            const type = group.dataset.filterType;
+            const buttons = group.querySelectorAll('.filter-btn');
+            buttons.forEach(btn => {
+                btn.addEventListener('click', () => {
+                    buttons.forEach(b => b.classList.remove('filter-btn--active', 'filter-btn--active-purple', 'filter-btn--active-dark', 'filter-btn--active-outline'));
+                    btn.classList.add('filter-btn--active');
+
+                    const val = (btn.dataset.val || '').toLowerCase();
+                    if (type === 'estado') currentEstado = val;
+                    if (type === 'pago') currentPago = val;
+                    if (type === 'audiencia') currentAudiencia = val;
+                    if (type === 'vencimiento') currentVencimiento = val;
+                    if (type === 'tipo') currentTipo = val;
+
+                    applyFiltersAndSort();
+                });
+            });
+        });
+
+        if (filterSelectTipo) {
+            filterSelectTipo.addEventListener('change', () => {
+                currentTipo = (filterSelectTipo.value || 'todos').toLowerCase();
+                applyFiltersAndSort();
+            });
+        }
+
+        if (searchInput) {
+            searchInput.addEventListener('input', () => {
+                if (btnClearSearch) {
+                    btnClearSearch.style.display = searchInput.value.trim().length > 0 ? 'flex' : 'none';
+                }
+                applyFiltersAndSort();
+            });
+        }
+
+        if (btnClearSearch) {
+            btnClearSearch.addEventListener('click', () => {
+                if (searchInput) {
+                    searchInput.value = '';
+                    btnClearSearch.style.display = 'none';
+                    searchInput.focus();
+                    applyFiltersAndSort();
+                }
+            });
+        }
+
+        if (btnResetAllFilters) {
+            btnResetAllFilters.addEventListener('click', () => {
+                if (searchInput) {
+                    searchInput.value = '';
+                    if (btnClearSearch) btnClearSearch.style.display = 'none';
+                }
+                if (sortSelect) sortSelect.value = 'vencimiento_urgente';
+                if (filterSelectTipo) filterSelectTipo.value = 'todos';
+
+                currentEstado = 'todos';
+                currentPago = 'todos';
+                currentAudiencia = 'todos';
+                currentVencimiento = 'todos';
+                currentTipo = 'todos';
+
+                document.querySelectorAll('.filter-group').forEach(group => {
+                    const buttons = group.querySelectorAll('.filter-btn');
+                    buttons.forEach(btn => {
+                        btn.classList.remove('filter-btn--active', 'filter-btn--active-purple', 'filter-btn--active-dark', 'filter-btn--active-outline');
+                        if ((btn.dataset.val || '').toLowerCase() === 'todos') {
+                            btn.classList.add('filter-btn--active');
+                        }
+                    });
+                });
+
+                applyFiltersAndSort();
+            });
+        }
+
+        if (sortSelect) sortSelect.addEventListener('change', applyFiltersAndSort);
+
+        function applyFiltersAndSort() {
+            const query = (searchInput ? searchInput.value : '').trim().toLowerCase();
+            const sortVal = sortSelect ? sortSelect.value : 'vencimiento_urgente';
+            const cards = Array.from(document.querySelectorAll('.case-card'));
+
+            const now = new Date();
+            const todayStr = now.toISOString().split('T')[0];
+            const todayTime = new Date(todayStr).getTime();
+
+            let visibleCount = 0;
+
+            cards.forEach(card => {
+                const titulo = (card.dataset.titulo || '').toLowerCase();
+                const desc = (card.dataset.desc || '').toLowerCase();
+                const estado = (card.dataset.estado || '').toLowerCase();
+                const tipo = (card.dataset.tipo || '').toLowerCase();
+                const tieneAud = card.dataset.tieneAudiencia === 'true';
+                const venc = card.dataset.vencimiento || '';
+                const exp = (card.dataset.expediente || '').toLowerCase();
+
+                // Búsqueda
+                const matchesSearch = !query || titulo.includes(query) || desc.includes(query) || tipo.includes(query) || estado.includes(query) || exp.includes(query);
+
+                // Filtro Estado
+                let matchesEstado = currentEstado === 'todos';
+                if (!matchesEstado) {
+                    if (currentEstado === 'finalizado') {
+                        matchesEstado = estado.includes('finalizado') || estado.includes('cerrado');
+                    } else {
+                        matchesEstado = estado.includes(currentEstado);
+                    }
+                }
+
+                // Filtro Fuero / Tipo
+                let matchesTipo = currentTipo === 'todos';
+                if (!matchesTipo) {
+                    matchesTipo = tipo.includes(currentTipo);
+                }
+
+                // Filtro Pago
+                let matchesPago = currentPago === 'todos';
+                if (!matchesPago) {
+                    const cardPago = (card.dataset.pago || '').toLowerCase();
+                    matchesPago = cardPago === currentPago;
+                }
+
+                // Filtro Audiencia
+                let matchesAudiencia = currentAudiencia === 'todos';
+                if (!matchesAudiencia) {
+                    matchesAudiencia = (currentAudiencia === 'con' && tieneAud) || (currentAudiencia === 'sin' && !tieneAud);
+                }
+
+                // Filtro Vencimiento
+                let matchesVenc = currentVencimiento === 'todos';
+                if (!matchesVenc) {
+                    if (venc) {
+                        const cardTime = new Date(venc).getTime();
+                        const diffDays = Math.ceil((cardTime - todayTime) / (1000 * 60 * 60 * 24));
+                        if (currentVencimiento === 'hoy') {
+                            matchesVenc = venc === todayStr;
+                        } else if (currentVencimiento === '7dias') {
+                            matchesVenc = diffDays >= 0 && diffDays <= 7;
+                        } else if (currentVencimiento === 'mes') {
+                            const d = new Date(venc);
+                            matchesVenc = d.getMonth() === now.getMonth() && d.getFullYear() === now.getFullYear();
+                        }
+                    } else {
+                        matchesVenc = false;
+                    }
+                }
+
+                const isVisible = matchesSearch && matchesEstado && matchesTipo && matchesPago && matchesAudiencia && matchesVenc;
+                card.style.display = isVisible ? '' : 'none';
+                if (isVisible) visibleCount++;
+            });
+
+            if (noResultsMsg) {
+                noResultsMsg.style.display = (visibleCount === 0 && cards.length > 0) ? 'block' : 'none';
+            }
+
+            if (counterBadge) {
+                const totalCards = cards.length;
+                if (visibleCount === totalCards) {
+                    counterBadge.textContent = `${totalCards} ${totalCards === 1 ? 'caso' : 'casos'}`;
+                } else {
+                    counterBadge.textContent = `${visibleCount} de ${totalCards} casos`;
+                }
+            }
+
+            // Reordenar tarjetas visibles
+            const visibleCards = cards.filter(c => c.style.display !== 'none');
+            visibleCards.sort((a, b) => {
+                if (sortVal === 'vencimiento_urgente') {
+                    const d1 = a.dataset.vencimiento ? new Date(a.dataset.vencimiento).getTime() : Infinity;
+                    const d2 = b.dataset.vencimiento ? new Date(b.dataset.vencimiento).getTime() : Infinity;
+                    return d1 - d2;
+                } else if (sortVal === 'vencimiento_lejano') {
+                    const d1 = a.dataset.vencimiento ? new Date(a.dataset.vencimiento).getTime() : -Infinity;
+                    const d2 = b.dataset.vencimiento ? new Date(b.dataset.vencimiento).getTime() : -Infinity;
+                    return d2 - d1;
+                } else if (sortVal === 'titulo_asc') {
+                    return (a.dataset.titulo || '').localeCompare(b.dataset.titulo || '');
+                } else if (sortVal === 'alta_reciente') {
+                    return (parseInt(b.dataset.id) || 0) - (parseInt(a.dataset.id) || 0);
+                } else if (sortVal === 'alta_antigua') {
+                    return (parseInt(a.dataset.id) || 0) - (parseInt(b.dataset.id) || 0);
+                }
+                return 0;
+            });
+
+            visibleCards.forEach(card => caseGrid.appendChild(card));
+        }
+
+        // Inicializar filtros y orden al cargar la página
+        applyFiltersAndSort();
+
+        // Checklist unificado: Casos con plazos hoy + Tareas personalizadas
+        const COMPLETED_CASES_KEY = 'gdc_completed_cases_v2';
+        const USER_TASKS_KEY = 'gdc_user_tasks_v2';
+
+        // 1. Obtener casos de hoy desde el DOM
+        const caseNodes = document.querySelectorAll('#serverCasesData span');
+        const caseTasks = Array.from(caseNodes).map(el => ({
+            id: el.getAttribute('data-id') || ('case_' + Math.random()),
+            text: el.getAttribute('data-tarea') || el.getAttribute('data-titulo') || '',
+            tipo: el.getAttribute('data-tipo') || 'Caso',
+            tipoSlug: el.getAttribute('data-tipo-slug') || 'caso',
+            badge: el.getAttribute('data-badge') || '',
+            isCase: true
+        }));
+
+        // 2. Estado de casos completados en localStorage
+        let completedCases = {};
+        try {
+            const storedCases = localStorage.getItem(COMPLETED_CASES_KEY);
+            if (storedCases) completedCases = JSON.parse(storedCases);
+        } catch (e) {
+            completedCases = {};
+        }
+
+        // 3. Tareas personalizadas del usuario
+        let userTasks = [];
+        try {
+            const stored = localStorage.getItem(USER_TASKS_KEY);
+            if (stored) {
+                userTasks = JSON.parse(stored);
+            } else {
+                userTasks = [
+                    { id: 1, text: "Llamar al perito para confirmar informe técnico", done: false }
+                ];
+                localStorage.setItem(USER_TASKS_KEY, JSON.stringify(userTasks));
+            }
+        } catch (e) {
+            userTasks = [];
+        }
+
+        function updateTasksProgress(total, done) {
+            const textEl = document.getElementById('tasksProgressText');
+            const fillEl = document.getElementById('tasksProgressFill');
+            if (!textEl || !fillEl) return;
+            const pct = total > 0 ? Math.round((done / total) * 100) : 0;
+            textEl.textContent = `${done} de ${total} completadas (${pct}%)`;
+            fillEl.style.width = pct + '%';
+        }
+
+        function renderChecklist() {
+            const listEl = document.getElementById('userTasksList');
+            if (!listEl) return;
+            listEl.innerHTML = '';
+
+            const totalCount = caseTasks.length + userTasks.length;
+            let doneCount = 0;
+
+            if (totalCount === 0) {
+                listEl.innerHTML = '<li class="task-checklist__empty">No hay plazos ni tareas pendientes para hoy.</li>';
+                updateTasksProgress(0, 0);
+                return;
+            }
+
+            // A. Casos de hoy convertidos en tareas
+            caseTasks.forEach(cTask => {
+                const isDone = !!completedCases[cTask.id];
+                if (isDone) doneCount++;
+
+                const li = document.createElement('li');
+                li.className = 'task-checklist__item task-checklist__item--case' + (isDone ? ' task-checklist__item--done' : '');
+
+                const label = document.createElement('label');
+                label.className = 'task-checklist__label';
+
+                const chk = document.createElement('input');
+                chk.type = 'checkbox';
+                chk.className = 'task-checklist__checkbox';
+                chk.checked = isDone;
+                chk.addEventListener('change', () => {
+                    if (chk.checked) {
+                        completedCases[cTask.id] = true;
+                    } else {
+                        delete completedCases[cTask.id];
+                    }
+                    try {
+                        localStorage.setItem(COMPLETED_CASES_KEY, JSON.stringify(completedCases));
+                    } catch (e) {}
+                    renderChecklist();
+                });
+
+                const bodyWrap = document.createElement('div');
+                bodyWrap.className = 'task-checklist__body';
+
+                const tag = document.createElement('span');
+                tag.className = 'task-checklist__tag task-checklist__tag--' + cTask.tipoSlug;
+                tag.textContent = cTask.tipo;
+
+                const span = document.createElement('span');
+                span.className = 'task-checklist__text';
+                span.textContent = cTask.text;
+
+                bodyWrap.appendChild(tag);
+                bodyWrap.appendChild(span);
+
+                label.appendChild(chk);
+                label.appendChild(bodyWrap);
+                li.appendChild(label);
+
+                listEl.appendChild(li);
+            });
+
+            // B. Tareas personalizadas
+            userTasks.forEach(task => {
+                if (task.done) doneCount++;
+
+                const li = document.createElement('li');
+                li.className = 'task-checklist__item' + (task.done ? ' task-checklist__item--done' : '');
+
+                const label = document.createElement('label');
+                label.className = 'task-checklist__label';
+
+                const chk = document.createElement('input');
+                chk.type = 'checkbox';
+                chk.className = 'task-checklist__checkbox';
+                chk.checked = !!task.done;
+                chk.addEventListener('change', () => {
+                    task.done = chk.checked;
+                    try {
+                        localStorage.setItem(USER_TASKS_KEY, JSON.stringify(userTasks));
+                    } catch (e) {}
+                    renderChecklist();
+                });
+
+                const bodyWrap = document.createElement('div');
+                bodyWrap.className = 'task-checklist__body';
+
+                const tag = document.createElement('span');
+                tag.className = 'task-checklist__tag task-checklist__tag--custom';
+                tag.textContent = 'Personal';
+
+                const span = document.createElement('span');
+                span.className = 'task-checklist__text';
+                span.textContent = task.text;
+
+                bodyWrap.appendChild(tag);
+                bodyWrap.appendChild(span);
+
+                label.appendChild(chk);
+                label.appendChild(bodyWrap);
+
+                const delBtn = document.createElement('button');
+                delBtn.type = 'button';
+                delBtn.className = 'task-checklist__btn-del';
+                delBtn.innerHTML = '&times;';
+                delBtn.title = 'Eliminar tarea';
+                delBtn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    userTasks = userTasks.filter(t => t.id !== task.id);
+                    try {
+                        localStorage.setItem(USER_TASKS_KEY, JSON.stringify(userTasks));
+                    } catch (e) {}
+                    renderChecklist();
+                });
+
+                li.appendChild(label);
+                li.appendChild(delBtn);
+                listEl.appendChild(li);
+            });
+
+            updateTasksProgress(totalCount, doneCount);
+        }
+
+        const btnToggleTask = document.getElementById('btnToggleAddTask');
+        const formAddTask = document.getElementById('formAddTask');
+        const inputNewTask = document.getElementById('inputNewTask');
+        const btnCancelTask = document.getElementById('btnCancelAddTask');
+
+        if (btnToggleTask && formAddTask) {
+            btnToggleTask.addEventListener('click', () => {
+                const isHidden = formAddTask.style.display === 'none';
+                formAddTask.style.display = isHidden ? 'flex' : 'none';
+                if (isHidden && inputNewTask) {
+                    inputNewTask.focus();
+                }
+            });
+        }
+
+        if (btnCancelTask && formAddTask) {
+            btnCancelTask.addEventListener('click', () => {
+                formAddTask.style.display = 'none';
+                if (inputNewTask) inputNewTask.value = '';
+            });
+        }
+
+        if (formAddTask && inputNewTask) {
+            formAddTask.addEventListener('submit', (e) => {
+                e.preventDefault();
+                const val = inputNewTask.value.trim();
+                if (!val) return;
+                userTasks.unshift({
+                    id: Date.now(),
+                    text: val,
+                    done: false
+                });
+                try {
+                    localStorage.setItem(USER_TASKS_KEY, JSON.stringify(userTasks));
+                } catch (e) {}
+                renderChecklist();
+                inputNewTask.value = '';
+                formAddTask.style.display = 'none';
+            });
+        }
+
+        renderChecklist();
+
+        applyFiltersAndSort();
     </script>
 
     {{> footer}}

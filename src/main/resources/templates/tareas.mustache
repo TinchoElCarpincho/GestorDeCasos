@@ -3,84 +3,435 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Tareas del Día | Gestor de Casos</title>
+    <title>Tareas del Día - Gestor de casos</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text x=%2250%%22 y=%2255%%22 font-size=%2275%22 text-anchor=%22middle%22 dominant-baseline=%22middle%22>⚖️</text></svg>">
     <link rel="stylesheet" href="/style.css">
 </head>
 <body>
     {{> header}}
 
     <main class="tasks-layout">
-        <!-- Nivel Superior: Ancho completo -->
+        <!-- Nivel Superior: Cabecera Principal -->
         <section class="tasks-header-card">
             <div class="tasks-header-card__left">
-                <span class="tasks-header-card__icon">&#9745;</span>
+                <div class="tasks-header-card__logo-badge">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path>
+                        <rect x="8" y="2" width="8" height="4" rx="1" ry="1"></rect>
+                        <polyline points="9 11 12 14 22 4"></polyline>
+                    </svg>
+                </div>
                 <div class="tasks-header-card__titles">
-                    <h2 class="tasks-header-card__title">Gestión del Día</h2>
-                    <p class="tasks-header-card__date">Actividades y vencimientos sincronizados con la base de datos</p>
+                    <h2 class="tasks-header-card__title">Tareas del Día</h2>
+                    <p class="tasks-header-card__date">
+                        <span>{{#fecha_hoy_legible}}{{fecha_hoy_legible}}{{/fecha_hoy_legible}}{{^fecha_hoy_legible}}Hoy{{/fecha_hoy_legible}}</span>
+                        <span class="tasks-header-card__dot">·</span>
+                        <span>Planificación operativa de plazos procesales y audiencias</span>
+                    </p>
                 </div>
             </div>
             <div class="tasks-header-card__right">
-                <a href="/" class="tasks-header-card__btn-new">+ Nueva Tarea / Caso</a>
+                <button type="button" class="tasks-btn-primary" id="btnOpenNewTask">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                        <line x1="12" y1="5" x2="12" y2="19"></line>
+                        <line x1="5" y1="12" x2="19" y2="12"></line>
+                    </svg>
+                    <span>Nueva Tarea</span>
+                </button>
+                <a href="/calendario" class="tasks-btn-outline">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                        <line x1="16" y1="2" x2="16" y2="6"></line>
+                        <line x1="8" y1="2" x2="8" y2="6"></line>
+                        <line x1="3" y1="10" x2="21" y2="10"></line>
+                    </svg>
+                    <span>Ver Calendario</span>
+                </a>
             </div>
         </section>
 
-        <!-- Nivel Inferior: 2 columnas 50/50 -->
+
+
+        <!-- Barra de Progreso Global del Día -->
+        <section class="tasks-progress-banner">
+            <div class="tasks-progress-banner__header">
+                <div class="tasks-progress-banner__titles">
+                    <span class="tasks-progress-banner__label">ESTADO DE CUMPLIMIENTO</span>
+                    <h3 class="tasks-progress-banner__title" id="pageProgressTitle">0 de 0 tareas completadas</h3>
+                </div>
+                <span class="tasks-progress-banner__pct" id="pageProgressPct">0%</span>
+            </div>
+            <div class="tasks-progress-banner__track">
+                <div class="tasks-progress-banner__fill" id="pageProgressFill" style="width: 0%;"></div>
+            </div>
+        </section>
+
+        <!-- Nivel Inferior: 2 Columnas (Checklist interactivo y Cronograma de eventos) -->
         <div class="tasks-content">
-            <!-- Columna Izquierda: Tareas Diarias / Vencimientos de Casos -->
+            <!-- Columna Izquierda: Checklist Completo del Día -->
             <section class="tasks-list-card">
                 <div class="tasks-list-card__header">
-                    <h3 class="tasks-list-card__title">Tareas y Plazos de Casos</h3>
+                    <div class="tasks-list-card__title-wrap">
+                        <h3 class="tasks-list-card__title">Checklist de Actividades</h3>
+                        <span class="tasks-list-card__counter" id="checklistCounter">0 tareas</span>
+                    </div>
+                    <!-- Filtros de visualización -->
+                    <div class="tasks-filter-tabs">
+                        <button type="button" class="tasks-filter-btn tasks-filter-btn--active" data-filter="all">Todas</button>
+                        <button type="button" class="tasks-filter-btn" data-filter="pending">Pendientes</button>
+                        <button type="button" class="tasks-filter-btn" data-filter="completed">Completadas</button>
+                    </div>
                 </div>
-                <ul class="tasks-list">
-                    {{#casos}}
-                        {{#fecha_vencimiento}}
-                        <li class="tasks-list__item">
-                            <label class="tasks-list__label">
-                                <input type="checkbox" class="tasks-list__checkbox">
-                                <div>
-                                    <span class="tasks-list__text">{{titulo}}</span>
-                                    <small style="display:block; color:#888;">Plazo: {{fecha_vencimiento}} ({{tipo}})</small>
-                                </div>
-                            </label>
-                        </li>
-                        {{/fecha_vencimiento}}
-                    {{/casos}}
-                    {{^casos}}
-                        <li class="tasks-list__item">No hay tareas pendientes registradas.</li>
-                    {{/casos}}
+
+                <!-- Formulario inline para agregar tarea -->
+                <form id="formAddPageTask" class="tasks-inline-add" style="display: none;">
+                    <input type="text" id="inputPageTask" class="tasks-inline-input" placeholder="Nueva tarea pendiente para hoy..." maxlength="120" required autocomplete="off">
+                    <div class="tasks-inline-actions">
+                        <button type="submit" class="btn-task-save">Guardar Tarea</button>
+                        <button type="button" class="btn-task-cancel" id="btnCancelPageTask">&times;</button>
+                    </div>
+                </form>
+
+                <!-- Lista interactiva de tareas -->
+                <ul class="tasks-checklist" id="pageTasksChecklist">
+                    <!-- Se renderiza vía JavaScript con persistencia -->
                 </ul>
             </section>
 
-            <!-- Columna Derecha: Eventos y Audiencias -->
+            <!-- Columna Derecha: Cronograma y Audiencias de Hoy -->
             <section class="events-list-card">
                 <div class="events-list-card__header">
-                    <h3 class="events-list-card__title">Audiencias y Eventos</h3>
+                    <div class="events-list-card__title-wrap">
+                        <h3 class="events-list-card__title">Cronograma y Audiencias de Hoy</h3>
+                        <span class="events-list-card__counter">{{total_audiencias_hoy}} audiencias</span>
+                    </div>
                 </div>
-                <div class="events-list">
-                    {{#casos}}
-                        {{#tiene_audiencia}}
-                        <article class="event-card">
-                            <div class="event-card__select">
-                                <input type="checkbox" class="event-card__checkbox">
+
+                <div class="events-timeline">
+                    {{#cronograma_hoy}}
+                        <article class="timeline-card timeline-card--{{tipo_slug}}">
+                            <div class="timeline-card__time-badge">
+                                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <circle cx="12" cy="12" r="10"></circle>
+                                    <polyline points="12 6 12 12 16 14"></polyline>
+                                </svg>
+                                <span>{{hora}}</span>
                             </div>
-                            <div class="event-card__body">
-                                <div class="event-card__meta">
-                                    <span class="event-card__tag event-card__tag--audiencia">Audiencia</span>
-                                    <span class="event-card__time">{{fecha_audiencia}}</span>
+                            <div class="timeline-card__content">
+                                <div class="timeline-card__top">
+                                    <span class="timeline-card__tag timeline-card__tag--{{tipo_slug}}">{{tipo}}</span>
+                                    <span class="timeline-card__exp">{{expediente}}</span>
                                 </div>
-                                <h4 class="event-card__title">{{titulo}}</h4>
-                                <p class="event-card__desc">{{descripcion}}</p>
+                                <h4 class="timeline-card__title">{{titulo}}</h4>
+                                {{#descripcion}}
+                                    <p class="timeline-card__desc">{{descripcion}}</p>
+                                {{/descripcion}}
                             </div>
                         </article>
-                        {{/tiene_audiencia}}
-                    {{/casos}}
-                    {{^casos}}
-                        <p style="font-size:0.85rem; color:#777;">No hay audiencias agendadas.</p>
-                    {{/casos}}
+                    {{/cronograma_hoy}}
+
+                    {{^cronograma_hoy}}
+                        <div class="tasks-empty-state">
+                            <div class="tasks-empty-state__icon">
+                                <svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+                                    <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                                    <line x1="16" y1="2" x2="16" y2="6"></line>
+                                    <line x1="8" y1="2" x2="8" y2="6"></line>
+                                    <line x1="3" y1="10" x2="21" y2="10"></line>
+                                </svg>
+                            </div>
+                            <h4 class="tasks-empty-state__title">Sin audiencias programadas hoy</h4>
+                            <p class="tasks-empty-state__desc">No hay comparendos ni plazos de documentación urgentes con horario fijado para la jornada.</p>
+                        </div>
+                    {{/cronograma_hoy}}
                 </div>
             </section>
         </div>
+
+        <!-- Datos ocultos del servidor para inicializar checklist -->
+        <div id="serverTodayTasksData" style="display: none;">
+            {{#casos_hoy}}
+                <span data-id="{{id}}" data-titulo="{{titulo}}" data-desc="{{descripcion}}" data-tipo="{{tipo}}" data-tipo-slug="{{tipo_slug}}" data-exp="{{expediente}}" data-hora="{{hora}}" data-badge="{{badge}}" data-tarea="{{tarea_texto}}"></span>
+            {{/casos_hoy}}
+        </div>
     </main>
+
+    <script>
+        // Claves compartidas con el dashboard para coherencia global
+        const COMPLETED_CASES_KEY = 'gdc_completed_cases_v2';
+        const USER_TASKS_KEY = 'gdc_user_tasks_v2';
+
+        // 1. Cargar casos de hoy del DOM
+        const caseNodes = document.querySelectorAll('#serverTodayTasksData span');
+        const caseTasks = Array.from(caseNodes).map(el => ({
+            id: el.dataset.id || ('case_' + Math.random()),
+            text: el.dataset.tarea || el.dataset.titulo || '',
+            titulo: el.dataset.titulo || '',
+            tipo: el.dataset.tipo || 'Caso',
+            tipoSlug: el.dataset.tipoSlug || 'caso',
+            expediente: el.dataset.exp || '',
+            hora: el.dataset.hora || '',
+            isCase: true
+        }));
+
+        // 2. Estado de casos completados
+        let completedCases = {};
+        try {
+            const storedCases = localStorage.getItem(COMPLETED_CASES_KEY);
+            if (storedCases) completedCases = JSON.parse(storedCases);
+        } catch (e) {
+            completedCases = {};
+        }
+
+        // 3. Tareas personalizadas
+        let userTasks = [];
+        try {
+            const storedTasks = localStorage.getItem(USER_TASKS_KEY);
+            if (storedTasks) {
+                userTasks = JSON.parse(storedTasks);
+            } else {
+                userTasks = [
+                    { id: 1, text: "Llamar al perito para confirmar informe técnico", done: false }
+                ];
+                localStorage.setItem(USER_TASKS_KEY, JSON.stringify(userTasks));
+            }
+        } catch (e) {
+            userTasks = [];
+        }
+
+        let currentFilter = 'all';
+
+        function updateProgress(total, done) {
+            const titleEl = document.getElementById('pageProgressTitle');
+            const pctEl = document.getElementById('pageProgressPct');
+            const fillEl = document.getElementById('pageProgressFill');
+            const kpiTotalEl = document.getElementById('kpiTotal');
+
+            const pct = total > 0 ? Math.round((done / total) * 100) : 0;
+            if (titleEl) titleEl.textContent = `${done} de ${total} actividades completadas hoy`;
+            if (pctEl) pctEl.textContent = `${pct}%`;
+            if (fillEl) fillEl.style.width = pct + '%';
+            if (kpiTotalEl) kpiTotalEl.textContent = total;
+        }
+
+        function renderChecklist() {
+            const listEl = document.getElementById('pageTasksChecklist');
+            const counterEl = document.getElementById('checklistCounter');
+            if (!listEl) return;
+
+            listEl.innerHTML = '';
+
+            const totalCount = caseTasks.length + userTasks.length;
+            let doneCount = 0;
+            let visibleCount = 0;
+
+            // Procesar items de casos
+            caseTasks.forEach(item => {
+                const isDone = !!completedCases[item.id];
+                if (isDone) doneCount++;
+
+                if (currentFilter === 'pending' && isDone) return;
+                if (currentFilter === 'completed' && !isDone) return;
+
+                visibleCount++;
+                const li = document.createElement('li');
+                li.className = 'tasks-item tasks-item--case' + (isDone ? ' tasks-item--done' : '');
+
+                const label = document.createElement('label');
+                label.className = 'tasks-item__label';
+
+                const chk = document.createElement('input');
+                chk.type = 'checkbox';
+                chk.className = 'tasks-item__checkbox';
+                chk.checked = isDone;
+                chk.addEventListener('change', () => {
+                    if (chk.checked) {
+                        completedCases[item.id] = true;
+                    } else {
+                        delete completedCases[item.id];
+                    }
+                    try {
+                        localStorage.setItem(COMPLETED_CASES_KEY, JSON.stringify(completedCases));
+                    } catch (e) {}
+                    renderChecklist();
+                });
+
+                const body = document.createElement('div');
+                body.className = 'tasks-item__body';
+
+                const meta = document.createElement('div');
+                meta.className = 'tasks-item__meta';
+
+                const tag = document.createElement('span');
+                tag.className = 'tasks-badge tasks-badge--' + item.tipoSlug;
+                tag.textContent = item.tipo;
+                meta.appendChild(tag);
+
+                if (item.expediente) {
+                    const expSpan = document.createElement('span');
+                    expSpan.className = 'tasks-item__exp';
+                    expSpan.textContent = item.expediente;
+                    meta.appendChild(expSpan);
+                }
+
+                if (item.hora && item.hora !== 'Fin de jornada') {
+                    const timeSpan = document.createElement('span');
+                    timeSpan.className = 'tasks-item__time';
+                    timeSpan.textContent = item.hora;
+                    meta.appendChild(timeSpan);
+                }
+
+                const textSpan = document.createElement('span');
+                textSpan.className = 'tasks-item__text';
+                textSpan.textContent = item.text;
+
+                body.appendChild(meta);
+                body.appendChild(textSpan);
+
+                label.appendChild(chk);
+                label.appendChild(body);
+                li.appendChild(label);
+                listEl.appendChild(li);
+            });
+
+            // Procesar items de usuario
+            userTasks.forEach(item => {
+                if (item.done) doneCount++;
+
+                if (currentFilter === 'pending' && item.done) return;
+                if (currentFilter === 'completed' && !item.done) return;
+
+                visibleCount++;
+                const li = document.createElement('li');
+                li.className = 'tasks-item tasks-item--personal' + (item.done ? ' tasks-item--done' : '');
+
+                const label = document.createElement('label');
+                label.className = 'tasks-item__label';
+
+                const chk = document.createElement('input');
+                chk.type = 'checkbox';
+                chk.className = 'tasks-item__checkbox';
+                chk.checked = !!item.done;
+                chk.addEventListener('change', () => {
+                    item.done = chk.checked;
+                    try {
+                        localStorage.setItem(USER_TASKS_KEY, JSON.stringify(userTasks));
+                    } catch (e) {}
+                    renderChecklist();
+                });
+
+                const body = document.createElement('div');
+                body.className = 'tasks-item__body';
+
+                const meta = document.createElement('div');
+                meta.className = 'tasks-item__meta';
+
+                const tag = document.createElement('span');
+                tag.className = 'tasks-badge tasks-badge--personal';
+                tag.textContent = 'Personal';
+                meta.appendChild(tag);
+
+                const textSpan = document.createElement('span');
+                textSpan.className = 'tasks-item__text';
+                textSpan.textContent = item.text;
+
+                body.appendChild(meta);
+                body.appendChild(textSpan);
+
+                label.appendChild(chk);
+                label.appendChild(body);
+                li.appendChild(label);
+
+                const delBtn = document.createElement('button');
+                delBtn.type = 'button';
+                delBtn.className = 'tasks-item__btn-del';
+                delBtn.innerHTML = '&times;';
+                delBtn.title = 'Eliminar tarea';
+                delBtn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    userTasks = userTasks.filter(t => t.id !== item.id);
+                    try {
+                        localStorage.setItem(USER_TASKS_KEY, JSON.stringify(userTasks));
+                    } catch (e) {}
+                    renderChecklist();
+                });
+
+                li.appendChild(delBtn);
+                listEl.appendChild(li);
+            });
+
+            if (visibleCount === 0) {
+                listEl.innerHTML = `
+                    <div class="tasks-empty-state">
+                        <p class="tasks-empty-state__title">No hay tareas que mostrar</p>
+                        <p class="tasks-empty-state__desc">${currentFilter === 'completed' ? 'Aún no has completado actividades hoy.' : 'No se registran tareas pendientes para este filtro.'}</p>
+                    </div>
+                `;
+            }
+
+            if (counterEl) {
+                counterEl.textContent = `${doneCount} de ${totalCount} completadas`;
+            }
+
+            updateProgress(totalCount, doneCount);
+        }
+
+        // Filtros
+        document.querySelectorAll('.tasks-filter-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.querySelectorAll('.tasks-filter-btn').forEach(b => b.classList.remove('tasks-filter-btn--active'));
+                btn.classList.add('tasks-filter-btn--active');
+                currentFilter = btn.dataset.filter;
+                renderChecklist();
+            });
+        });
+
+        // Toggle formulario inline
+        const btnOpenNewTask = document.getElementById('btnOpenNewTask');
+        const formAddPageTask = document.getElementById('formAddPageTask');
+        const inputPageTask = document.getElementById('inputPageTask');
+        const btnCancelPageTask = document.getElementById('btnCancelPageTask');
+
+        if (btnOpenNewTask && formAddPageTask) {
+            btnOpenNewTask.addEventListener('click', () => {
+                const isHidden = formAddPageTask.style.display === 'none';
+                formAddPageTask.style.display = isHidden ? 'flex' : 'none';
+                if (isHidden && inputPageTask) inputPageTask.focus();
+            });
+        }
+
+        if (btnCancelPageTask && formAddPageTask) {
+            btnCancelPageTask.addEventListener('click', () => {
+                formAddPageTask.style.display = 'none';
+                if (inputPageTask) inputPageTask.value = '';
+            });
+        }
+
+        if (formAddPageTask && inputPageTask) {
+            formAddPageTask.addEventListener('submit', (e) => {
+                e.preventDefault();
+                const val = inputPageTask.value.trim();
+                if (!val) return;
+
+                userTasks.unshift({
+                    id: Date.now(),
+                    text: val,
+                    done: false
+                });
+
+                try {
+                    localStorage.setItem(USER_TASKS_KEY, JSON.stringify(userTasks));
+                } catch (e) {}
+
+                inputPageTask.value = '';
+                formAddPageTask.style.display = 'none';
+                renderChecklist();
+            });
+        }
+
+        // Inicialización
+        renderChecklist();
+    </script>
 
     {{> footer}}
 </body>
