@@ -137,6 +137,7 @@ public class TareasController {
         model.addAttribute("docs_hoy", docsHoy);
         model.addAttribute("cronograma_hoy", cronogramaHoy);
         model.addAttribute("casos", casosHoy);
+        model.addAttribute("nav_tareas", true);
 
         return "tareas";
     }

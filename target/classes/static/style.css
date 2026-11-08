@@ -1,10 +1,24 @@
-/* Reset básico y paleta de colores */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Merriweather:ital,wght@0,300;0,400;0,700;1,400&display=swap');
+
+/* Reset básico y paleta de colores "Legal Moderno" */
 :root {
-    --primary-color: #2c3e50;
-    --accent-color: #3498db;
-    --bg-color: #f4f7f6;
-    --card-bg: #ffffff;
-    --text-color: #333333;
+    --primary-color: #1E3A8A;
+    --primary-hover: #172554;
+    --accent-color: #1E3A8A;
+    --secondary-color: #334155;
+    --bg-color: #F8FAFC;
+    --card-bg: #FFFFFF;
+    --text-color: #334155;
+    --color-primary: #1E3A8A;
+    --color-secondary: #334155;
+    --color-bg-app: #F8FAFC;
+    --color-surface: #FFFFFF;
+    --color-border: #E2E8F0;
+    --color-accent-success: #10B981;
+    --color-accent-danger: #EF4444;
+    --font-ui: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    --font-legal: 'Merriweather', Georgia, serif;
+    --shadow-subtle: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -2px rgba(0, 0, 0, 0.05);
 }
 
 body {
@@ -14,13 +28,9 @@ body {
     box-sizing: border-box;
     display: flex;
     flex-direction: column;
-    font-family: system-ui, -apple-system, sans-serif;
-    background-color: #f4f6f9;
-    background-image: 
-        radial-gradient(at 100% 0%, rgba(52, 152, 219, 0.08) 0px, transparent 50%),
-        radial-gradient(at 0% 100%, rgba(44, 62, 80, 0.06) 0px, transparent 50%);
-    background-attachment: fixed;
-    color: var(--text-color);
+    font-family: var(--font-ui);
+    background-color: var(--color-bg-app);
+    color: var(--color-secondary);
 }
 
 main {
@@ -38,8 +48,9 @@ main {
 
 .dashboard__content {
     width: 100%;
-    max-width: 1280px;
-    margin: 2rem auto;
+    max-width: 1560px;
+    margin: 0 auto;
+    margin-bottom: 2rem;
     padding: 0 1.5rem;
     box-sizing: border-box;
     flex: 1;
@@ -54,12 +65,18 @@ main {
 
 .dashboard__layout {
     display: grid;
-    grid-template-columns: 2.5fr 1fr;
+    grid-template-columns: minmax(0, 1fr) 340px;
     gap: 1.5rem;
     align-items: start;
 }
 
-@media (max-width: 1024px) {
+@media (max-width: 1100px) {
+    .dashboard__layout {
+        grid-template-columns: minmax(0, 1fr) 300px;
+    }
+}
+
+@media (max-width: 960px) {
     .dashboard__layout {
         grid-template-columns: 1fr;
         gap: 1.5rem;
@@ -70,6 +87,8 @@ main {
     display: flex;
     flex-direction: column;
     gap: 1.5rem;
+    min-width: 0;
+    width: 100%;
 }
 
 /* BEM: Bloque Formulario con Flexbox */
@@ -111,19 +130,39 @@ main {
     background-color: #2980b9;
 }
 
-/* BEM: Grilla adaptativa con CSS Grid */
+/* BEM: Grilla adaptativa con CSS Grid que responde a cualquier pantalla */
 .cases-grid,
 .case-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
     gap: 1.25rem;
 }
 
-@media (max-width: 640px) {
+/* Monitores anchos (>= 1400px): 3 a 4 columnas fluidas */
+@media (min-width: 1400px) {
+    .cases-grid,
+    .case-grid {
+        grid-template-columns: repeat(auto-fill, minmax(270px, 1fr));
+        gap: 1.35rem;
+    }
+}
+
+/* Pantallas medianas / tablets cuando el sidebar baja: 2 a 3 columnas */
+@media (max-width: 960px) and (min-width: 681px) {
+    .cases-grid,
+    .case-grid {
+        grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+        gap: 1rem;
+    }
+}
+
+/* Móviles (<= 680px): 1 columna completa al 100% */
+@media (max-width: 680px) {
     .cases-grid,
     .case-grid {
         grid-template-columns: 1fr;
-        gap: 1rem;
+        gap: 0.85rem;
+        width: 100%;
     }
 }
 
@@ -280,9 +319,10 @@ main {
 }
 
 .case-card__title {
+    font-family: var(--font-legal);
     font-size: 1.05rem;
     font-weight: 700;
-    color: #0f172a;
+    color: var(--color-secondary);
     margin: 0.15rem 0 0 0;
     line-height: 1.35;
     display: -webkit-box;
@@ -501,8 +541,8 @@ main {
 
 .pill--pago-pagado {
     background-color: #ecfdf5;
-    color: #047857;
-    border: 1px solid #d1fae5;
+    color: var(--color-accent-success);
+    border: 1px solid #a7f3d0;
     font-size: 0.68rem;
     font-weight: 700;
     padding: 0.15rem 0.4rem;
@@ -511,9 +551,9 @@ main {
 }
 
 .pill--pago-pendiente {
-    background-color: #fffbeb;
-    color: #b45309;
-    border: 1px solid #fef3c7;
+    background-color: #fef2f2;
+    color: var(--color-accent-danger);
+    border: 1px solid #fecaca;
     font-size: 0.68rem;
     font-weight: 700;
     padding: 0.15rem 0.4rem;
@@ -611,33 +651,67 @@ main {
 }
 
 .header__container {
-    max-width: 1280px;
+    max-width: 1560px;
     height: 100%;
     margin: 0 auto;
     padding: 0 1.5rem;
     display: flex;
     justify-content: space-between;
     align-items: center;
+    flex-wrap: nowrap;
     box-sizing: border-box;
 }
 
 .header__brand {
     display: flex;
     align-items: center;
-    gap: 0.5rem;
-    font-size: 1.25rem;
+    gap: 0.65rem;
+    font-size: 1.15rem;
     font-weight: 700;
-    color: var(--primary-color);
+    color: var(--color-primary);
+    text-decoration: none;
+    white-space: nowrap;
+    flex-shrink: 0;
+}
+
+.header__brand-text-wrap {
+    display: flex;
+    flex-direction: column;
+    line-height: 1.15;
+    white-space: nowrap;
+}
+
+.header__brand-text {
+    letter-spacing: -0.02em;
+    font-weight: 800;
+    font-size: 1.1rem;
+    color: var(--color-primary);
+    white-space: nowrap;
+}
+
+.header__brand-sub {
+    font-size: 0.65rem;
+    font-weight: 600;
+    color: var(--text-muted);
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    white-space: nowrap;
 }
 
 .header__logo {
     display: flex;
     align-items: center;
-    font-size: 1.25rem;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    border-radius: 8px;
+    background-color: #EEF2FF;
+    color: var(--color-primary);
+    flex-shrink: 0;
 }
 
-.header__brand-text {
-    letter-spacing: -0.02em;
+.header__logo-icon {
+    stroke: var(--color-primary);
 }
 
 .header__nav {
@@ -687,10 +761,31 @@ main {
     box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
 }
 
+.header__link--active,
+.header__nav-link.header__link--active {
+    background-color: var(--primary-color) !important;
+    color: #ffffff !important;
+    font-weight: 600;
+    box-shadow: 0 2px 4px rgba(44, 62, 80, 0.25);
+}
+
+.header__link--active .header__link-icon,
+.header__nav-link.header__link--active .header__link-icon {
+    stroke: #ffffff;
+}
+
+.header__link--active:hover,
+.header__nav-link.header__link--active:hover {
+    background-color: var(--primary-hover) !important;
+    color: #ffffff !important;
+}
+
 .header__profile {
     display: flex;
     align-items: center;
     gap: 0.75rem;
+    flex-shrink: 0;
+    white-space: nowrap;
 }
 
 .header__avatar {
@@ -702,12 +797,14 @@ main {
     display: flex;
     align-items: center;
     justify-content: center;
+    flex-shrink: 0;
 }
 
 .header__profile-info {
     display: flex;
     flex-direction: column;
     text-align: right;
+    white-space: nowrap;
 }
 
 .header__profile-name {
@@ -727,14 +824,14 @@ main {
 /* Controles del Dashboard y Búsqueda de Casos */
 .dashboard__controls-card {
     background: var(--card-bg, #ffffff);
-    padding: 1.25rem 1.5rem;
-    border-radius: 12px;
+    padding: 0.85rem 1.15rem;
+    border-radius: 10px;
     border: 1px solid #e2e8f0;
     box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.04), 0 2px 4px -2px rgba(0, 0, 0, 0.03);
     display: flex;
     flex-direction: column;
-    gap: 0.95rem;
-    margin-bottom: 1.5rem;
+    gap: 0.55rem;
+    margin-bottom: -0.25rem;
 }
 
 /* Cabecera de controles: Título, contador y botón Crear Caso */
@@ -742,24 +839,24 @@ main {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding-bottom: 0.85rem;
+    padding-bottom: 0.55rem;
     border-bottom: 1px solid #f1f5f9;
 }
 
 .controls-card__header-left {
     display: flex;
     align-items: center;
-    gap: 0.75rem;
+    gap: 0.65rem;
 }
 
 .controls-card__title-wrap {
     display: flex;
     align-items: center;
-    gap: 0.65rem;
+    gap: 0.55rem;
 }
 
 .controls-card__title {
-    font-size: 1.2rem;
+    font-size: 1.05rem;
     font-weight: 700;
     color: var(--text-color, #0f172a);
     margin: 0;
@@ -769,46 +866,51 @@ main {
 .controls-card__counter {
     display: inline-flex;
     align-items: center;
-    padding: 0.2rem 0.65rem;
+    padding: 0.15rem 0.55rem;
     border-radius: 9999px;
     background-color: #f1f5f9;
     color: #475569;
-    font-size: 0.76rem;
+    font-size: 0.72rem;
     font-weight: 600;
     border: 1px solid #e2e8f0;
 }
 
 .btn-create {
-    height: 38px;
+    height: 32px;
     box-sizing: border-box;
-    padding: 0 1.15rem;
-    background-color: var(--accent-color, #2563eb);
+    padding: 0 0.85rem;
+    background-color: var(--color-primary);
     color: #ffffff;
     border: none;
-    border-radius: 8px;
+    border-radius: 6px;
     font-weight: 600;
-    font-size: 0.85rem;
+    font-size: 0.8rem;
     cursor: pointer;
     transition: all 0.2s ease;
     white-space: nowrap;
     display: inline-flex;
     align-items: center;
-    gap: 0.45rem;
-    box-shadow: 0 1px 2px rgba(37, 99, 235, 0.2);
+    gap: 0.35rem;
+    box-shadow: 0 1px 2px rgba(30, 58, 138, 0.25);
 }
 
 .btn-create:hover {
-    background-color: #1d4ed8;
+    background-color: var(--primary-hover);
     transform: translateY(-1px);
-    box-shadow: 0 4px 6px -1px rgba(37, 99, 235, 0.3);
+    box-shadow: 0 3px 6px -1px rgba(30, 58, 138, 0.35);
 }
 
-/* Fila 1: Búsqueda y Ordenamiento con proporciones equilibradas */
+.btn-create:active {
+    transform: translateY(0);
+    background-color: #0f172a;
+}
+
+/* Fila 1: Búsqueda y Ordenamiento con proporciones compactas */
 .controls-card__search-row,
 .controls__search-sort {
     display: flex;
     align-items: center;
-    gap: 0.75rem;
+    gap: 0.6rem;
     width: 100%;
 }
 
@@ -822,7 +924,9 @@ main {
 
 .controls-card__search-icon {
     position: absolute;
-    left: 0.95rem;
+    left: 0.75rem;
+    width: 15px;
+    height: 15px;
     color: #94a3b8;
     pointer-events: none;
 }
@@ -831,14 +935,14 @@ main {
 .controls__search-input,
 .search-bar {
     width: 100%;
-    height: 42px;
+    height: 34px;
     box-sizing: border-box;
-    padding: 0 2.4rem 0 2.65rem;
+    padding: 0 2rem 0 2.25rem;
     border: 1px solid #cbd5e1;
-    border-radius: 8px;
+    border-radius: 6px;
     background-color: #f8fafc;
     color: var(--text-color, #1e293b);
-    font-size: 0.9rem;
+    font-size: 0.82rem;
     transition: all 0.2s ease;
 }
 
@@ -848,19 +952,19 @@ main {
     outline: none;
     border-color: #2563eb;
     background-color: #ffffff;
-    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
+    box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.12);
 }
 
 .controls-card__clear-search {
     position: absolute;
-    right: 0.75rem;
-    width: 22px;
-    height: 22px;
+    right: 0.55rem;
+    width: 18px;
+    height: 18px;
     border-radius: 50%;
     background: #e2e8f0;
     color: #64748b;
     border: none;
-    font-size: 1.1rem;
+    font-size: 0.95rem;
     line-height: 1;
     display: flex;
     align-items: center;
@@ -875,8 +979,8 @@ main {
 }
 
 .controls-card__sort-wrap {
-    width: 230px;
-    min-width: 190px;
+    width: 200px;
+    min-width: 170px;
     flex-shrink: 0;
     position: relative;
     display: flex;
@@ -885,7 +989,9 @@ main {
 
 .controls-card__sort-icon {
     position: absolute;
-    left: 0.85rem;
+    left: 0.7rem;
+    width: 13px;
+    height: 13px;
     color: #94a3b8;
     pointer-events: none;
 }
@@ -894,22 +1000,22 @@ main {
 .controls__sort-select,
 .sort-select {
     width: 100%;
-    height: 42px;
+    height: 34px;
     box-sizing: border-box;
-    padding: 0 2rem 0 2.3rem;
+    padding: 0 1.75rem 0 2rem;
     border: 1px solid #cbd5e1;
-    border-radius: 8px;
+    border-radius: 6px;
     background-color: #f8fafc;
     color: var(--text-color, #1e293b);
-    font-size: 0.85rem;
+    font-size: 0.8rem;
     font-weight: 500;
     cursor: pointer;
     transition: all 0.2s ease;
     appearance: none;
     -webkit-appearance: none;
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%2364748b' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='11' height='11' viewBox='0 0 24 24' fill='none' stroke='%2364748b' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
     background-repeat: no-repeat;
-    background-position: right 0.75rem center;
+    background-position: right 0.6rem center;
 }
 
 .controls-card__sort-select:focus,
@@ -918,23 +1024,23 @@ main {
     outline: none;
     border-color: #2563eb;
     background-color: #ffffff;
-    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
+    box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.12);
 }
 
-/* Fila 2: Filtro de Estado principal (Pestañas horizontales armónicas) */
+/* Fila 2: Filtro de Estado principal (Pestañas horizontales armónicas y compactas) */
 .controls-card__state-bar {
     display: flex;
     align-items: center;
     width: 100%;
     overflow-x: auto;
-    padding-bottom: 0.15rem;
+    padding-bottom: 0.05rem;
 }
 
 .filter-group--states {
     width: 100%;
     display: flex;
     align-items: center;
-    gap: 0.65rem;
+    gap: 0.45rem;
 }
 
 /* Fila 3: Filtros secundarios modulares y botón Limpiar */
@@ -944,8 +1050,8 @@ main {
     flex-wrap: wrap;
     align-items: center;
     justify-content: flex-start;
-    gap: 0.85rem;
-    padding-top: 0.75rem;
+    gap: 0.6rem;
+    padding-top: 0.5rem;
     border-top: 1px solid #f1f5f9;
     width: 100%;
 }
@@ -953,12 +1059,12 @@ main {
 .filter-group {
     display: flex;
     align-items: center;
-    gap: 0.45rem;
+    gap: 0.35rem;
     flex-shrink: 0;
 }
 
 .filter-group__label {
-    font-size: 0.72rem;
+    font-size: 0.68rem;
     font-weight: 700;
     color: #64748b;
     letter-spacing: 0.5px;
@@ -968,16 +1074,16 @@ main {
 .filter-group__buttons {
     display: flex;
     align-items: center;
-    gap: 0.35rem;
+    gap: 0.25rem;
     flex-wrap: wrap;
 }
 
 .filter-btn {
-    height: 30px;
-    padding: 0 0.75rem;
-    font-size: 0.8rem;
+    height: 25px;
+    padding: 0 0.55rem;
+    font-size: 0.74rem;
     font-weight: 500;
-    border-radius: 6px;
+    border-radius: 5px;
     border: 1px solid #e2e8f0;
     background-color: #f8fafc;
     color: #475569;
@@ -1019,21 +1125,21 @@ main {
 /* Selector estilizado de Fuero */
 .controls-card__filter-select,
 .filter-select {
-    height: 30px;
+    height: 25px;
     box-sizing: border-box;
-    padding: 0 1.65rem 0 0.65rem;
+    padding: 0 1.45rem 0 0.55rem;
     border: 1px solid #cbd5e1;
-    border-radius: 6px;
+    border-radius: 5px;
     background-color: #f8fafc;
-    font-size: 0.78rem;
+    font-size: 0.74rem;
     font-weight: 500;
     color: #334155;
     cursor: pointer;
     appearance: none;
     -webkit-appearance: none;
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='10' viewBox='0 0 24 24' fill='none' stroke='%2364748b' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='9' height='9' viewBox='0 0 24 24' fill='none' stroke='%2364748b' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
     background-repeat: no-repeat;
-    background-position: right 0.5rem center;
+    background-position: right 0.45rem center;
     transition: all 0.15s ease;
 }
 
@@ -1051,19 +1157,19 @@ main {
 }
 
 .btn-reset-filters {
-    height: 30px;
+    height: 25px;
     box-sizing: border-box;
-    padding: 0 0.75rem;
+    padding: 0 0.55rem;
     background-color: transparent;
     border: 1px solid #cbd5e1;
-    border-radius: 6px;
+    border-radius: 5px;
     color: #64748b;
-    font-size: 0.78rem;
+    font-size: 0.74rem;
     font-weight: 600;
     cursor: pointer;
     display: inline-flex;
     align-items: center;
-    gap: 0.35rem;
+    gap: 0.25rem;
     transition: all 0.15s ease;
     white-space: nowrap;
 }
@@ -1122,20 +1228,21 @@ main {
     width: 38px;
     height: 38px;
     border-radius: 10px;
-    background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+    background: linear-gradient(135deg, var(--color-primary) 0%, var(--primary-hover) 100%);
     color: #ffffff;
     display: flex;
     align-items: center;
     justify-content: center;
-    box-shadow: 0 3px 8px rgba(37, 99, 235, 0.28);
+    box-shadow: 0 3px 8px rgba(30, 58, 138, 0.25);
     flex-shrink: 0;
 }
 
 .daily-tasks__main-title {
     margin: 0;
+    font-family: var(--font-legal);
     font-size: 1.05rem;
     font-weight: 700;
-    color: #0f172a;
+    color: var(--color-secondary);
     line-height: 1.25;
     letter-spacing: -0.01em;
 }
@@ -1278,13 +1385,14 @@ main {
 /* Bloque Calendario */
 .calendar-layout {
     width: 100%;
-    max-width: 1200px;
-    margin: 2rem auto;
+    max-width: 1440px;
+    margin: .8rem auto;
+    margin-bottom: 1.5rem;
     padding: 0 1rem;
     box-sizing: border-box;
     display: flex;
     flex-direction: column;
-    gap: 1.5rem;
+    gap: 1rem;
     flex: 1;
 }
 
@@ -1307,20 +1415,30 @@ main {
     gap: 1rem;
 }
 
-.calendar-header-card__icon {
-    font-size: 2rem;
+.calendar-header-card__icon-badge {
+    width: 42px;
+    height: 42px;
+    border-radius: 10px;
+    background: #EEF2FF;
+    color: var(--color-primary);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
 }
 
 .calendar-header-card__title {
     margin: 0;
+    font-family: var(--font-legal);
     font-size: 1.4rem;
-    color: var(--primary-color);
+    font-weight: 700;
+    color: var(--color-primary);
 }
 
 .calendar-header-card__subtitle {
     margin: 0.25rem 0 0 0;
     font-size: 0.85rem;
-    color: #777;
+    color: var(--color-text-muted);
 }
 
 .calendar-header-card__right {
@@ -1332,18 +1450,19 @@ main {
 
 .calendar-header-card__btn {
     padding: 0.5rem 0.9rem;
-    border: 1px solid #ddd;
+    border: 1px solid var(--color-border);
     border-radius: 6px;
     background: var(--card-bg);
-    color: var(--text-color);
+    color: var(--color-secondary);
     cursor: pointer;
+    font-family: var(--font-ui);
     font-size: 0.9rem;
     font-weight: 500;
     transition: all 0.2s;
 }
 
 .calendar-header-card__btn:hover {
-    background: #f0f0f0;
+    background: #f1f5f9;
 }
 
 .calendar-header-card__nav-group {
@@ -1352,15 +1471,15 @@ main {
 }
 
 .calendar-header-card__btn--primary {
-    background: var(--accent-color);
+    background: var(--color-primary);
     color: white;
-    border-color: var(--accent-color);
+    border-color: var(--color-primary);
     font-weight: 600;
 }
 
 .calendar-header-card__btn--primary:hover {
-    background: #2980b9;
-    border-color: #2980b9;
+    background: var(--primary-hover);
+    border-color: var(--primary-hover);
 }
 
 /* Nivel Inferior: 2 Columnas */
@@ -1432,9 +1551,9 @@ main {
 }
 
 .calendar-grid__cell--active {
-    border-color: #2563eb !important;
+    border-color: var(--color-primary) !important;
     background-color: #eff6ff !important;
-    box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.25) !important;
+    box-shadow: 0 0 0 2px rgba(30, 58, 138, 0.25) !important;
 }
 
 .calendar-grid__cell--today {
@@ -1473,7 +1592,7 @@ main {
 }
 
 .calendar-grid__cell--today .calendar-grid__day-number {
-    background: #2563eb;
+    background: var(--color-primary);
     color: #ffffff;
     font-weight: 700;
 }
@@ -1642,8 +1761,8 @@ main {
 }
 
 .calendar-add-task-input:focus {
-    border-color: #2563eb;
-    box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.15);
+    border-color: var(--color-primary);
+    box-shadow: 0 0 0 2px rgba(30, 58, 138, 0.15);
 }
 
 .calendar-add-task-actions {
@@ -1653,7 +1772,7 @@ main {
 }
 
 .calendar-btn-save {
-    background: #2563eb;
+    background: var(--color-primary);
     color: #fff;
     border: none;
     font-size: 0.75rem;
@@ -1661,10 +1780,11 @@ main {
     padding: 0.25rem 0.65rem;
     border-radius: 4px;
     cursor: pointer;
+    transition: all 0.2s;
 }
 
 .calendar-btn-save:hover {
-    background: #1d4ed8;
+    background: var(--primary-hover);
 }
 
 .calendar-btn-cancel {
@@ -1868,13 +1988,13 @@ main {
 /* Bloque Tareas */
 .tasks-layout {
     width: 100%;
-    max-width: 1200px;
-    margin: 1.75rem auto 3rem auto;
+    max-width: 1440px;
+    margin: 1rem auto 3rem auto;
     padding: 0 1.25rem;
     box-sizing: border-box;
     display: flex;
     flex-direction: column;
-    gap: 1.35rem;
+    gap: 1rem;
     flex: 1;
 }
 
@@ -1902,27 +2022,28 @@ main {
     width: 46px;
     height: 46px;
     border-radius: 12px;
-    background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+    background: linear-gradient(135deg, var(--color-primary) 0%, var(--primary-hover) 100%);
     color: #ffffff;
     display: flex;
     align-items: center;
     justify-content: center;
-    box-shadow: 0 4px 10px rgba(37, 99, 235, 0.3);
+    box-shadow: 0 4px 10px rgba(30, 58, 138, 0.25);
     flex-shrink: 0;
 }
 
 .tasks-header-card__title {
     margin: 0;
+    font-family: var(--font-legal);
     font-size: 1.35rem;
     font-weight: 700;
-    color: #0f172a;
+    color: var(--color-primary);
     letter-spacing: -0.01em;
 }
 
 .tasks-header-card__date {
     margin: 0.25rem 0 0 0;
     font-size: 0.82rem;
-    color: #64748b;
+    color: var(--color-text-muted);
     font-weight: 500;
     display: flex;
     align-items: center;
@@ -1945,7 +2066,7 @@ main {
     align-items: center;
     gap: 0.4rem;
     padding: 0.6rem 1.15rem;
-    background: #2563eb;
+    background: var(--color-primary);
     color: #ffffff;
     border: none;
     border-radius: 8px;
@@ -1953,11 +2074,11 @@ main {
     font-size: 0.85rem;
     cursor: pointer;
     transition: all 0.2s ease;
-    box-shadow: 0 2px 4px rgba(37, 99, 235, 0.2);
+    box-shadow: 0 2px 4px rgba(30, 58, 138, 0.2);
 }
 
 .tasks-btn-primary:hover {
-    background: #1d4ed8;
+    background: var(--primary-hover);
     transform: translateY(-1px);
 }
 
@@ -2030,7 +2151,7 @@ main {
 
 .tasks-stat-card__icon-wrap--total {
     background: #eff6ff;
-    color: #2563eb;
+    color: var(--color-primary);
 }
 
 .tasks-stat-card__icon-wrap--audiencias {
@@ -2737,7 +2858,7 @@ main {
 
 .btn-submit {
     padding: 0.65rem 1.4rem;
-    background-color: var(--accent-color);
+    background-color: var(--color-primary);
     color: #ffffff;
     border: none;
     border-radius: 6px;
@@ -2747,7 +2868,7 @@ main {
 }
 
 .btn-submit:hover {
-    background-color: #2980b9;
+    background-color: var(--primary-hover);
 }
 
 .daily-tasks__empty {
@@ -3125,7 +3246,32 @@ main {
 }
 
 /* 2. Header y Navegación Principal */
+@media (max-width: 992px) and (min-width: 769px) {
+    .header__link span,
+    .header__nav-link span {
+        font-size: 0.82rem;
+    }
+
+    .header__link,
+    .header__nav-link {
+        padding: 0.35rem 0.55rem;
+        gap: 0.35rem;
+    }
+
+    .header__profile-subtitle {
+        display: none;
+    }
+
+    .header__brand-sub {
+        display: none;
+    }
+}
+
 @media (max-width: 768px) {
+    body {
+        padding-top: 104px;
+    }
+
     .header {
         height: auto;
         min-height: 58px;
@@ -3140,11 +3286,23 @@ main {
 
     .header__brand {
         order: 1;
-        font-size: 1.15rem;
+        font-size: 1.05rem;
+        gap: 0.45rem;
+    }
+
+    .header__logo {
+        width: 30px;
+        height: 30px;
+    }
+
+    .header__logo-icon {
+        width: 18px;
+        height: 18px;
     }
 
     .header__profile {
         order: 2;
+        margin-left: auto;
         gap: 0.5rem;
     }
 
@@ -3211,8 +3369,8 @@ main {
 /* 3. Dashboard, Controles y Tarjetas de Caso */
 @media (max-width: 768px) {
     .dashboard__controls-card {
-        padding: 1rem;
-        gap: 0.75rem;
+        padding: 0.75rem 0.85rem;
+        gap: 0.5rem;
     }
 
     .controls-card__header {
@@ -3281,19 +3439,64 @@ main {
     }
 
     .case-card {
-        padding: 1rem;
+        padding: 0;
+        border-radius: 10px;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+        overflow: hidden;
+        width: 100%;
+        box-sizing: border-box;
     }
 
     .case-card__header {
-        padding: 0.75rem 0.85rem 0.25rem 0.85rem;
+        padding: 0.85rem 0.95rem 0.35rem 0.95rem;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 0.5rem;
     }
 
     .case-card__body {
-        padding: 0.65rem 0.85rem;
+        padding: 0 0.95rem;
+        display: flex;
+        flex-direction: column;
+        gap: 0.45rem;
+    }
+
+    .case-card__title {
+        font-size: 1rem;
+        line-height: 1.35;
+        margin-bottom: 0.15rem;
+        color: var(--color-secondary);
+    }
+
+    .case-card__row {
+        padding: 0.4rem 0.55rem;
+        font-size: 0.8rem;
+        gap: 0.4rem;
     }
 
     .case-card__footer {
-        padding: 0.65rem 0.85rem 0.75rem 0.85rem;
+        padding: 0.7rem 0.95rem;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 0.5rem;
+        border-top: 1px solid #f1f5f9;
+        margin-top: 0.5rem;
+        background-color: #fafbfc;
+    }
+
+    .case-card__link {
+        padding: 0.35rem 0.65rem;
+        background-color: #EEF2FF;
+        border-radius: 6px;
+        font-size: 0.8rem;
+        font-weight: 600;
+        color: var(--color-primary);
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.3rem;
     }
 
     .daily-tasks {
@@ -3301,7 +3504,7 @@ main {
     }
 }
 
-@media (max-width: 480px) {
+@media (max-width: 640px) {
     .controls-card__header {
         flex-direction: column;
         align-items: stretch;

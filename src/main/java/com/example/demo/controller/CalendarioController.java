@@ -106,6 +106,7 @@ public class CalendarioController {
         model.addAttribute("eventos", eventos);
         model.addAttribute("total_eventos", eventos.size());
         model.addAttribute("casos", eventos);
+        model.addAttribute("nav_calendario", true);
 
         return "calendario";
     }

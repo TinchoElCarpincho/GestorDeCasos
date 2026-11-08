@@ -197,6 +197,7 @@ public class CasoController {
             fechaHoyLegible = Character.toUpperCase(fechaHoyLegible.charAt(0)) + fechaHoyLegible.substring(1);
         }
         model.addAttribute("fecha_hoy_legible", fechaHoyLegible);
+        model.addAttribute("nav_casos", true);
 
         return "index";
     }
