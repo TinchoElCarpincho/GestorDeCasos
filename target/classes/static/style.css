@@ -1228,7 +1228,7 @@ main {
     width: 38px;
     height: 38px;
     border-radius: 10px;
-    background: linear-gradient(135deg, var(--color-primary) 0%, var(--primary-hover) 100%);
+    background-color: var(--color-primary);
     color: #ffffff;
     display: flex;
     align-items: center;
@@ -2022,7 +2022,7 @@ main {
     width: 46px;
     height: 46px;
     border-radius: 12px;
-    background: linear-gradient(135deg, var(--color-primary) 0%, var(--primary-hover) 100%);
+    background-color: var(--color-primary);
     color: #ffffff;
     display: flex;
     align-items: center;
@@ -2239,7 +2239,7 @@ main {
 
 .tasks-progress-banner__fill {
     height: 100%;
-    background: linear-gradient(90deg, #3b82f6 0%, #10b981 100%);
+    background-color: var(--color-accent-success);
     border-radius: 9999px;
     transition: width 0.35s ease;
 }
@@ -3004,7 +3004,7 @@ main {
 
 .daily-tasks__progress-fill {
     height: 100%;
-    background: linear-gradient(90deg, #3b82f6 0%, #10b981 100%);
+    background-color: var(--color-accent-success);
     border-radius: 9999px;
     transition: width 0.35s ease;
 }
