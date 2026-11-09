@@ -1,6 +1,9 @@
 package com.example.demo.controller;
 
 import com.example.demo.model.Caso;
+
+import jakarta.servlet.http.HttpSession;
+
 import org.javalite.activejdbc.Model;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -15,7 +18,12 @@ import java.util.Map;
 public class CasoController {
 
     @GetMapping("/")
-    public String listarCasos(org.springframework.ui.Model model) {
+    public String listarCasos(HttpSession session, org.springframework.ui.Model model) {
+        
+        // 1. CANDADO DE SEGURIDAD
+        if (session.getAttribute("usuarioLogueado") == null) {
+            return "redirect:/login";
+        }
         List<Map<String, Object>> casos = new ArrayList<>();
         try {
             System.out.println("=== COLUMNAS DE CASOS ===");
